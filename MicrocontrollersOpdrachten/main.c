@@ -4,27 +4,22 @@
 
 #define F_CPU 8e6
 
+
 int main( void ) {
 
-	DDRC = 0x00;
+	DDRD = 0xff;
 	
-	DDRE = 0xff;
-	PORTE = 0x00;
+	PORTD = 0x00;
+	int bitshift = 0;
 	
 	for(;;) {
-		if (((PINC >> 7) & 0x01) != 1) {
-			PORTE = 0x00;
-			continue;
-		}
-		
 		_delay_ms(500);
 		
-		if(PORTE == 0b01000000){
-			PORTE = 0b00100000;
-		}
-		else {
-			PORTE = 0b01000000;
-		}
+		PORTD = 0x01 << bitshift;
+		
+		bitshift++;
+		if (bitshift > 7) bitshift = 0;
+		
 	}
 
 	return 1;
