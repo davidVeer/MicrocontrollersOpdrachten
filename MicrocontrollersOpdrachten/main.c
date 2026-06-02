@@ -9,18 +9,23 @@ int main( void ) {
 
 	DDRD = 0xff;
 	
-	PORTD = 0x00;
-	int bitshift = 0;
+	int lookuptable[3][8] = {
+		{0b00000001,0b00000011,0b00000111,0b00001111,0b00011111,0b00111111,0b01111111,0b11111111},
+		{0b11111111,0b01111111,0b00111111,0b00011111,0b00001111,0b00000111,0b00000011,0b00000001},
+		{0b10000001,0b01000010,0b00100100,0b00011000,0b00011000,0b00111100,0b01111110,0b11111111}
+	};
 	
+	PORTD = 0x00;
+		
 	for(;;) {
-		_delay_ms(500);
-		
-		PORTD = 0x01 << bitshift;
-		
-		bitshift++;
-		if (bitshift > 7) bitshift = 0;
-		
+		for (int j = 0; j < 3; j++){
+			for(int i = 0; i < 8; i++){				
+				_delay_ms(500);
+				PORTD = lookuptable[j][i];
+			}			
+		}
+			
+			
 	}
-
 	return 1;
 }
