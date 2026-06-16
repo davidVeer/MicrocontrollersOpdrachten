@@ -1,31 +1,53 @@
 #include <xc.h>
 #include <avr/io.h>
 #include <util/delay.h>
+#include <stdbool.h>
 
 #define F_CPU 8e6
+
+int previousStateButton = 0x00;
+
+
+void blink_ms( int millis )
+{	
+	if (PORTD == 0x40){
+		PORTD = 0x00;
+	}
+	else {
+		PORTD = 0x40;
+	}
+	
+		for(int i = 0 ; i< millis ; i++){
+			_delay_ms(1);
+		}
+}
+
 
 
 int main( void ) {
 
 	DDRD = 0xff;
-	
-	int lookuptable[3][8] = {
-		{0b00000001,0b00000011,0b00000111,0b00001111,0b00011111,0b00111111,0b01111111,0b11111111},
-		{0b11111111,0b01111111,0b00111111,0b00011111,0b00001111,0b00000111,0b00000011,0b00000001},
-		{0b10000001,0b01000010,0b00100100,0b00011000,0b00011000,0b00111100,0b01111110,0b11111111}
-	};
-	
+	DDRC = 0x00;	
 	PORTD = 0x00;
-		
+	bool blinklong = false;
+	
 	for(;;) {
-		for (int j = 0; j < 3; j++){
-			for(int i = 0; i < 8; i++){				
-				_delay_ms(500);
-				PORTD = lookuptable[j][i];
-			}			
+		int Reading = PINC;
+		
+		if (Reading & 0x01 && previousStateButton != Reading){
+			if (blinklong) blinklong = false;
+			else blinklong = true;
+			}
+			
+		if (blinklong){
+			blink_ms(5000);
 		}
-			
-			
+		else{
+			blink_ms(1250);
+		}
+		
+		
+		previousStateButton = Reading;		
 	}
 	return 1;
 }
