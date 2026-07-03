@@ -35,6 +35,33 @@ void wait( int ms ) {
 	}
 }
 
+const unsigned char Characters[16] = {
+	0b00111111, // 0
+	0b00000110, // 1
+	0b01011011, // 2
+	0b01001111, // 3
+	0b01100110, // 4
+	0b01101101, // 5
+	0b01111101, // 6
+	0b00000111, // 7
+	0b01111111, // 8
+	0b01101111, // 9
+	0b01110111, // A
+	0b01111100, // B
+	0b00111001, // C
+	0b01011110, // D
+	0b01111001, // E
+	0b01110001, // F
+};
+
+void setDisplay(int num){
+	if(num > 15 || num < 0){
+		PORTA = Characters[14];
+		} else {
+		PORTA = Characters[num];
+	}
+}
+
 /*****************************************************************
 short:			ISR INT0
 inputs:
@@ -43,11 +70,14 @@ notes:			Set PORTD.5
 Version :    	DMK, Initial code
 *******************************************************************/
 ISR( INT0_vect ) {
-		PORTA = 1<< bitshift;
    		bitshift++;
-   		if (bitshift > 7) bitshift = 0;
+   		setDisplay(bitshift);
 }
 
+ISR( INT1_vect ) {
+	bitshift--;
+	setDisplay(bitshift);
+}
 
 /******************************************************************
 short:			main() loop, entry point of executable
@@ -62,14 +92,18 @@ int main( void ) {
 	DDRA = 0xFF;
 
 	// Init Interrupt hardware
-	EICRA |= 0x03;		// INT1 falling edge, INT0 rising edge
-	EIMSK |= 0x01;			// Enable INT1 & INT0
+	EICRA |= 0x07;		// INT1 falling edge, INT0 rising edge
+	EIMSK |= 0x03;			// Enable INT1 & INT0
 	
 	// Enable global interrupt system
 	//SREG = 0x80;			// Of direct via SREG of via wrapper
 	sei();				
 
-	for(;;) {							
+	for(;;) {	
+		if(PIND == 0b11111111){
+			bitshift = 0;
+			setDisplay(bitshift);
+		}						
 	}
 
 	return 1;
