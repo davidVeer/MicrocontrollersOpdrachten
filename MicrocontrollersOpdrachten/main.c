@@ -19,7 +19,7 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 
-
+int bitshift = 0;
 /******************************************************************
 short:			Busy wait number of millisecs
 inputs:			int ms (Number of millisecs to busy wait)
@@ -43,19 +43,11 @@ notes:			Set PORTD.5
 Version :    	DMK, Initial code
 *******************************************************************/
 ISR( INT0_vect ) {
-    PORTD |= (1<<5);		
+		PORTA = 1<< bitshift;
+   		bitshift++;
+   		if (bitshift > 7) bitshift = 0;
 }
 
-/******************************************************************
-short:			ISR INT1
-inputs:
-outputs:
-notes:			Clear PORTD.5
-Version :    	DMK, Initial code
-*******************************************************************/
-ISR( INT1_vect ) {
-    PORTD &= ~(1<<5);		
-}
 
 /******************************************************************
 short:			main() loop, entry point of executable
@@ -67,18 +59,17 @@ Version :    	DMK, Initial code
 int main( void ) {
 	// Init I/O
 	DDRD = 0xF0;			// PORTD(7:4) output, PORTD(3:0) input	
+	DDRA = 0xFF;
 
 	// Init Interrupt hardware
-	EICRA |= 0x0B;			// INT1 falling edge, INT0 rising edge
-	EIMSK |= 0x03;			// Enable INT1 & INT0
+	EICRA |= 0x03;		// INT1 falling edge, INT0 rising edge
+	EIMSK |= 0x01;			// Enable INT1 & INT0
 	
 	// Enable global interrupt system
 	//SREG = 0x80;			// Of direct via SREG of via wrapper
 	sei();				
 
-	while (1) {
-		PORTD ^= (1<<7);	// Toggle PORTD.7
-		wait( 500 );								
+	for(;;) {							
 	}
 
 	return 1;
