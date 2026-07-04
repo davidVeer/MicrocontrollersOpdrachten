@@ -2,7 +2,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdlib.h>   // voor itoa()
-#include "LCD.h"
+#include "SupportModules\LCD\Headers\LCD.h"
 
 // Pas dit aan naar het kanaal waarop de LM35 daadwerkelijk is aangesloten
 #define LM35_ADC_KANAAL 0
@@ -49,25 +49,6 @@ void lcd_toon_temperatuur(unsigned char temp_c){
 }
 
 int main(void){
-	DDRA = 0xFF;   // PORTA volledig output -> LED's tonen ADCH
-	PORTA = 0x00;
 
-	init_4bits_mode();
-	_delay_ms(10);
-	lcd_clear();
-	_delay_ms(10);
-
-	adc_init_lm35();
-
-	for(;;){
-		unsigned char temperatuur = lm35_lees_temperatuur();
-
-		// Waarde van ADCH tonen op de LED's van PORTA
-		PORTA = temperatuur;
-
-		// Temperatuur tonen op het LCD
-		lcd_toon_temperatuur(temperatuur);
-
-		_delay_ms(500); // wachtfunctie: bepaalt de meetfrequentie
-	}
+		
 }
