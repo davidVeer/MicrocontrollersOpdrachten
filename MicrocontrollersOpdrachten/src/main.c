@@ -1,8 +1,6 @@
-#define F_CPU 8000000UL
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdlib.h>   // voor itoa()
-#include "OpdrachtenWeek1/Headers/WeekEenB.h"
 
 // Pas dit aan naar het kanaal waarop de LM35 daadwerkelijk is aangesloten
 #define LM35_ADC_KANAAL 0
