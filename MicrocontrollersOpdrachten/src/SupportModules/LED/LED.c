@@ -21,10 +21,3 @@ void InvertPinState(volatile uint8_t* port,uint8_t pin){
 int CheckPinState(volatile uint8_t* port,uint8_t pin){
     return (*port >> pin) & 0x01;
 }
-
-void BlinkPin(volatile uint8_t* port,uint8_t pin,int interval_millis){
-	for(;;){
-		InvertPinState(port,pin);
-		_wait_ms(interval_millis);
-	}
-}
