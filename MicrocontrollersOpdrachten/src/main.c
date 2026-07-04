@@ -12,7 +12,8 @@ int main(void){
 	game_run();
 	game_over();
 
-	for(;;){
-
+	while(1){
+		
 	}
+	
 }

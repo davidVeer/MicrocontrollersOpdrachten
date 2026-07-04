@@ -1,6 +1,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include "LCD.h"
+#include <stdlib.h>   // voor itoa()
 
 void _delay_ms(double __ms);
 
