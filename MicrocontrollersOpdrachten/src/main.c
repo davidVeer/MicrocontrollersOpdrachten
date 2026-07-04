@@ -5,4 +5,5 @@
 #include "OpdrachtenWeek5/Headers/WeekVijfB.h"
 
 int main(void){
+	Five_LCD_Module();
 }

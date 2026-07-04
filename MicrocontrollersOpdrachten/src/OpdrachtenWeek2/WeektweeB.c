@@ -4,10 +4,11 @@
 #include "SupportModules/Segment/Headers/SingleSegment.h"
 #include "SupportModules/Interupts/Headers/Interupts.h"
 #include "SupportModules/PinHandling/Headers/PinHandling.h"
-#define WEEK_TWO_ONE
+#include "SupportModules/LCD/Headers/LCD.h"
+
+// #define WEEK_TWO_ONE
 // #define WEEK_TWO_TWO
 // #define WEEK_TWO_THREE
-
 #include "Headers/Interuptions.h"
 
 #include <avr/io.h>
@@ -82,11 +83,11 @@ void Four_Segment_Display_Animation(){
 void Five_LCD_Module(){
 		init_4bits_mode();
 		
-		_delay_ms(10);
+		_delay_ms(100);
 		
 		lcd_clear();
 		
-		_delay_ms(10);
+		_delay_ms(100);
 		
 		lcd_write_string("spatie weg");
 }

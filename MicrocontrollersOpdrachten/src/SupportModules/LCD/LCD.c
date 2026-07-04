@@ -1,9 +1,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
-#include "Headers\LCD.h"
-
-
-void _delay_ms(double __ms);
+#include "Headers/LCD.h"
+#include <stdlib.h>
 
 void lcd_clear() {
 	lcd_write_command (0x01);						//Leeg display
