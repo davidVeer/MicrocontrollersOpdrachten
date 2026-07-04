@@ -1,43 +1,19 @@
 #include "Headers/WeekTweeB.h"
 
+
+#include "SupportModules/Segment/Headers/SingleSegment.h"
+#include "SupportModules/PinHandling/Headers/PinHandling.h"
+// #define WEEK_TWO_ONE
+// #define WEEK_TWO_TWO
+#define WEEK_TWO_THREE
+
+#include "Headers/Interuptions.h"
+
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
 
-void wait( int ms ) {
-	for (int i=0; i<ms; i++) {
-		_delay_ms( 1 );		// library function (max 30 ms at 8MHz)
-	}
-}
-
-const unsigned char Characters[16] = {
-	0b00111111, // 0
-	0b00000110, // 1
-	0b01011011, // 2
-	0b01001111, // 3
-	0b01100110, // 4
-	0b01101101, // 5
-	0b01111101, // 6
-	0b00000111, // 7
-	0b01111111, // 8
-	0b01101111, // 9
-	0b01110111, // A
-	0b01111100, // B
-	0b00111001, // C
-	0b01011110, // D
-	0b01111001, // E
-	0b01110001, // F
-};
-
-int bitshift = 0;
-
-#define SEG_A 0b00000001
-#define SEG_B 0b00000010
-#define SEG_C 0b00000100
-#define SEG_D 0b00001000
-#define SEG_E 0b00010000
-#define SEG_F 0b00100000
-#define SEG_G 0b01000000
+bitshift = 0;
 
 PATTERN_STRUCT pattern[] = {
 	// Rondlopend effect (buitenring): a -> b -> c -> d -> e -> f -> a
@@ -56,11 +32,9 @@ PATTERN_STRUCT pattern[] = {
 	{0x00,       200},
 };
 
-void setDisplay(int num){
-	if(num > 15 || num < 0){
-		PORTA = Characters[14];
-		} else {
-		PORTA = Characters[num];
+void wait( int ms ) {
+	for (int i=0; i<ms; i++) {
+		_delay_ms( 1 );		// library function (max 30 ms at 8MHz)
 	}
 }
 
@@ -83,15 +57,15 @@ void Two_Multiple_Interupts(){
 
 	EICRA |= 0x0B;
 	EIMSK |= 0x03;
-	
-	sei();	
 
+	sei();	
+	
     for(;;){}
 }
 
 void Three_Segment_Display(){
-	DDRD = 0xF0;
-	DDRA = 0xFF;
+	setPort(&DDRD,0x00);
+	setPort(&DDRA,0xff);
 
 
 	EICRA |= 0x07;	
@@ -100,23 +74,22 @@ void Three_Segment_Display(){
 	sei();				
 
 	for(;;) {	
-		if(PIND == 0b11111111){
+		if(CheckPinState(&PIND,1) && CheckPinState(&PIND,2)){
 			bitshift = 0;
-			setDisplay(bitshift);
+			setDisplayNumber(&PORTA, bitshift);
 		}						
 	}
 }
 
 void Four_Segment_Display_Animation(){
-	DDRD = 0xF0;
-	DDRA = 0xFF;
+	setPort(&DDRA,0xff);
 
 	for(;;) {	
 		int index = 0;
 
 		for (int i = 0; i < sizeof(pattern)/sizeof(pattern[0]); i++)
 		{
-			PORTA = pattern[index].data;
+			setDisplay(&PORTA, pattern[index].data);
 			wait(pattern[index].delay);
 			index++;
 		}

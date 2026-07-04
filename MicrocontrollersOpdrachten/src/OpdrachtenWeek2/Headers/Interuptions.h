@@ -15,8 +15,6 @@ ISR( INT1_vect ) {
 #endif
 
 #ifdef WEEK_TWO_TWO 
-#include "WeekTweeB.h"
-
 ISR( INT0_vect ) {
 		PORTA = 1<< bitshift;
    		bitshift++;
@@ -26,21 +24,15 @@ ISR( INT0_vect ) {
 #endif
 
 #ifdef WEEK_TWO_THREE 
-#include "WeekTweeB.h"
 ISR( INT0_vect ) {
-   		bitshift++;
-   		setDisplay(bitshift);
+   	bitshift++;
+   	setDisplayNumber(&PORTA, bitshift);
 }
 
 ISR( INT1_vect ) {
 	bitshift--;
-	setDisplay(bitshift);
+	setDisplayNumber(&PORTA, bitshift);
 }
-
-#endif
-
-
-#ifdef WEEK_TWO_FIVE
 
 #endif
 

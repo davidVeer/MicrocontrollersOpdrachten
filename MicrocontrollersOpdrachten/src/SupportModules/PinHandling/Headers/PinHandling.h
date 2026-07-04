@@ -1,5 +1,5 @@
-#ifndef LED_H
-#define LED_H
+#ifndef PIN_HANDLING_H
+#define PIN_HANDLING_H
 #include <avr/io.h>
 
 void setPort(volatile uint8_t* *ddrReg, uint8_t bitmask);
