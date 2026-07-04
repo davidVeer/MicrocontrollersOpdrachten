@@ -1,70 +1,61 @@
 #define F_CPU 8000000UL
 #include <avr/io.h>
+#include <util/delay.h>
 
 // ---------------------------------------------------------------------
-// ADC init: kanaal 1, 10-bit (ADLAR=0), Vref=AVCC, prescaler 64 (125kHz),
-// free-running mode.
+// ADC init: kanaal 3, 8-bit resultaat (ADLAR=1), Vref=AVCC,
+// prescaler 64 (125kHz). GEEN free-running: elke conversie moet
+// handmatig gestart worden door ADSC te zetten.
 // ---------------------------------------------------------------------
-void adc_init_free_running_ch1(void){
+void adc_init_single_conversion_ch3(void){
 	// Prescaler = 64 -> ADC-klok = 8MHz/64 = 125kHz (binnen 50-200kHz bereik)
 	ADCSRA |= (1 << ADPS2) | (1 << ADPS1);
 
 	// Referentiespanning = AVCC
 	ADMUX |= (1 << REFS0);
 
-	// ADLAR blijft 0 -> 10-bit resultaat rechts uitgelijnd (ADCL + ADCH samen)
+	// 8-bit resultaat: links uitgelijnd, alleen ADCH nodig
+	ADMUX |= (1 << ADLAR);
 
-	// Kanaal 1 selecteren: MUX4:0 = 00001
-	ADMUX &= ~((1<<MUX4)|(1<<MUX3)|(1<<MUX2)|(1<<MUX1));
-	ADMUX |=  (1<<MUX0);
+	// Kanaal 3 selecteren: MUX4:0 = 00011
+	ADMUX &= ~((1<<MUX4)|(1<<MUX3)|(1<<MUX2));
+	ADMUX |=  (1<<MUX1) | (1<<MUX0);
 
-	// Free-running mode aan
-	ADCSRA |= (1 << ADFR);
+	// LET OP: ADFR wordt NIET gezet -> single conversion mode (op aanvraag)
 
-	// ADC inschakelen
+	// ADC inschakelen (nog geen conversie starten)
 	ADCSRA |= (1 << ADEN);
+}
 
-	// Start de (continue) conversiecyclus
+// Start één conversie, wacht tot hij klaar is, en geeft de 8-bit uitkomst terug.
+unsigned char adc_read_ch3_8bit(void){
+	// Start de conversie
 	ADCSRA |= (1 << ADSC);
-}
 
-// Leest de actuele 10-bit ADC-waarde (0-1023).
-// ADC is de avr-libc macro die ADCL en ADCH samenvoegt tot één 16-bit waarde.
-// Belangrijk: bij 10-bit gebruik (ADLAR=0) altijd eerst ADCL, dan ADCH laten lezen -
-// de ADC-macro/registeraccess van avr-libc doet dit al in de juiste volgorde.
-unsigned int adc_read(void){
-	return ADC;
-}
-
-// Zet een 10-bit waarde (0-1023) om naar een bargraph-patroon van 0-16 LED's,
-// en verdeelt dat patroon over PORTA (LED 0-7, laag) en PORTB (LED 8-15, hoog).
-void toon_bargraph(unsigned int adc_waarde){
-	// Schaal 0-1023 naar 0-16: delen door 64 (1024/16 = 64)
-	unsigned int aantal_leds_aan = adc_waarde >> 6;   // 0 t/m 16
-
-	// Bitmask met de laagste 'aantal_leds_aan' bits op 1.
-	// Voorbeeld: aantal_leds_aan=3 -> 0b0000000000000111
-	unsigned int patroon;
-	if(aantal_leds_aan >= 16){
-		patroon = 0xFFFF;              // alle 16 LED's aan (Vin = Vref)
-	} else {
-		patroon = (1 << aantal_leds_aan) - 1;
+	// Wacht tot de conversie klaar is: ADSC wordt door hardware
+	// automatisch weer op 0 gezet zodra de conversie voltooid is
+	while(ADCSRA & (1 << ADSC)){
+		// niets doen, gewoon wachten
 	}
 
-	PORTA = (unsigned char)(patroon & 0xFF);         // LED 0-7
-	PORTB = (unsigned char)((patroon >> 8) & 0xFF);  // LED 8-15
+	// 8-bit resultaat staat door ADLAR=1 direct in ADCH
+	return ADCH;
 }
 
 int main(void){
-	DDRA = 0xFF;   // PORTA volledig output (LED's)
-	DDRB = 0xFF;   // PORTB volledig output (LED's)
-	PORTA = 0x00;  // start: alle LED's uit
-	PORTB = 0x00;
+	DDRA = 0xFF;   // PORTA volledig output (bijv. om resultaat te tonen op LED's)
+	PORTA = 0x00;
 
-	adc_init_free_running_ch1();
+	adc_init_single_conversion_ch3();
 
 	for(;;){
-		unsigned int waarde = adc_read();
-		toon_bargraph(waarde);
+		// Eén conversie op aanvraag uitvoeren en resultaat ophalen
+		unsigned char waarde = adc_read_ch3_8bit();
+
+		// Gebruik de waarde, bijv. tonen op LED's van PORTA
+		PORTA = waarde;
+
+		// Wachtfunctie: bepaalt hoe vaak je "op aanvraag" een nieuwe meting doet
+		_delay_ms(500);
 	}
 }
