@@ -33,7 +33,7 @@ ISR( INT1_vect ) {
 	bitshift--;
 	setDisplayNumber(&PORTA, bitshift);
 }
-
 #endif
+
 
 #endif

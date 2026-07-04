@@ -2,6 +2,7 @@
 #include <util/delay.h>
 #include "Headers/LCD.h"
 #include <stdlib.h>
+#include "SupportModules/PinHandling/Headers/PinHandling.h"
 
 void lcd_clear() {
 	lcd_write_command (0x01);						//Leeg display
@@ -10,30 +11,11 @@ void lcd_clear() {
 }
 
 void lcd_strobe_lcd_e(void) {
-	
-	sbi_porta(LCD_E);	// E high
+	SetPin(&PORTA,LCD_E,1);	// E high
 	_delay_ms(1);
-	cbi_porta(LCD_E);  	// E low
+	SetPin(&PORTA,LCD_E,0); // E low
 	_delay_ms(1);
 	
-}
-
-void sbi_portc(int index){
-	PORTC |= (1<<index);
-}
-
-
-void cbi_portc(int index){
-	PORTC &= ~(1<<index);
-}
-
-void sbi_porta(int index){
-	PORTA |= (1<<index);
-}
-
-
-void cbi_porta(int index){
-	PORTA &= ~(1<<index);
 }
 
 void init_4bits_mode(void) {
@@ -41,30 +23,33 @@ void init_4bits_mode(void) {
 	// PORTC output mode and all low (also E and RS pin)
 	
 	// Init I/O
-	DDRC = 0xFF;			// PORTD(7) output, PORTD(6:0) input
-	PORTC = 0xFF;
 	
-	DDRD = 0xFF;
-	DDRA = 0xFF;
-	PORTC = 0x00;
-	PORTA = 0x00;
+	setPort(&DDRC,0xff);
+	setPort(&PORTC,0xFF);
+
+
+	setPort(&DDRD,0xff);
+	setPort(&DDRA,0xff);
+
+	setPort(&PORTC,0x00);
+	setPort(&PORTA,0x00);
 	
-	PORTC = 0x20;	// function for 4-bit 1 row
+	setPort(&PORTC,0x20);	// function for 4-bit 1 row
 	lcd_strobe_lcd_e();
 
-	PORTC = 0x20;   // function high nibble 4-bit 2 row
+	setPort(&PORTC,0x20);   // function high nibble 4-bit 2 row
 	lcd_strobe_lcd_e();
-	PORTC = 0x80;	// function low nibble 4-bit 2 row
-	lcd_strobe_lcd_e();
-
-	PORTC = 0x00;   // function high nibble turn on visible blinking-block cursor
-	lcd_strobe_lcd_e();
-	PORTC = 0xF0;   // function low nibble turn on visible blinking-block cursor
+	setPort(&PORTC,0x80);	// function low nibble 4-bit 2 row
 	lcd_strobe_lcd_e();
 
-	PORTC = 0x00;   // Entry mode set high nibble
+	setPort(&PORTC,0x00);   // function high nibble turn on visible blinking-block cursor
 	lcd_strobe_lcd_e();
-	PORTC = 0x60;	// Entry mode set low nibble
+	setPort(&PORTC,0xF0);   // function low nibble turn on visible blinking-block cursor
+	lcd_strobe_lcd_e();
+
+	setPort(&PORTC,0x00);   // Entry mode set high nibble
+	lcd_strobe_lcd_e();
+	setPort(&PORTC,0x60);	// Entry mode set low nibble
 	lcd_strobe_lcd_e();
 	
 	// return home
@@ -75,13 +60,13 @@ void init_4bits_mode(void) {
 void lcd_write_command(unsigned char byte){
 	
 	//upper nibble
-	PORTC = byte;
-	cbi_porta(LCD_RS);
+	setPort(&PORTC,byte);
+	SetPin(&PORTA,LCD_RS,0);
 	lcd_strobe_lcd_e();
 	
 	//lower nibble
-	PORTC = (byte<<4);
-	cbi_porta(LCD_RS);
+	setPort(&PORTC,(byte<<4));
+	SetPin(&PORTA,LCD_RS,0);
 	lcd_strobe_lcd_e();
 
 }
@@ -93,16 +78,17 @@ void lcd_write_string(const char *str) {
 	}
 }
 
+
 void lcd_write_character(unsigned char byte){
 	
 	//upper nibble
-	PORTC = byte;
-	sbi_porta(LCD_RS);
+	setPort(&PORTC,byte);
+	SetPin(&PORTA,LCD_RS,1);
 	lcd_strobe_lcd_e();
 	
 	//lower nibble
-	PORTC = (byte<<4);
-	sbi_porta(LCD_RS);
+	setPort(&PORTC,(byte<<4));
+	SetPin(&PORTA,LCD_RS,1);
 	lcd_strobe_lcd_e();
 }
 
