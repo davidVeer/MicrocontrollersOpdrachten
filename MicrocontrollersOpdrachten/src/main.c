@@ -1,50 +1,67 @@
-/* ---------------------------------------------------------------------------
-** This software is in the public domain, furnished "as is", without technical
-** support, and with no warranty, express or implied, as to its usefulness for
-** any purpose.
-**
-** ioisr.c
-**
-** Beschrijving:	ISR on PORTD demonstrattion  
-** Target:			AVR mcu
-** Build:			avr-gcc -std=c99 -Wall -O3 -mmcu=atmega128 -D F_CPU=8000000UL -c ioisr.c
-**					avr-gcc -g -mmcu=atmega128 -o ioisr.elf ioisr.o
-**					avr-objcopy -O ihex ioisr.elf ioisr.hex 
-**					or type 'make'
-** Author: 			dkroeske@gmail.com
-** -------------------------------------------------------------------------*/
-
 #define F_CPU 8e6
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include "LCD.h"
 
+volatile unsigned int count = 0;
 
-/******************************************************************
-short:			main() loop, entry point of executable
-inputs:
-outputs:
-notes:			Slow background task after init ISR
-Version :    	DMK, Initial code
-*******************************************************************/
+void init_tc2_counter(void){
+	// T2-pin (PD7) als input met pull-up, dit is de externe klokbron voor TC2
+	DDRD &= ~(1 << PD7);
+	PORTD |= (1 << PD7);
+
+	TCNT2 = 0;                              // teller starten op 0
+
+	// Counter mode: externe klok op T2, tellen op stijgende flank
+	TCCR2 = (1 << CS22) | (1 << CS21) | (1 << CS20);
+
+	TIMSK |= (1 << TOIE2);                  // overflow interrupt aan (voor >255 toetsdrukken)
+
+	sei();
+}
+
+ISR(TIMER2_OVF_vect){
+	count += 256; // TCNT2 loopt over na 255 -> 256 tellingen bijtellen
+}
+
+unsigned int get_total_count(void){
+	unsigned int total;
+	unsigned char tcnt_snapshot;
+
+	cli();
+	tcnt_snapshot = TCNT2;
+	total = count + tcnt_snapshot;
+	sei();
+
+	return total;
+}
+
 int main( void ) {
+	unsigned int last_shown = 0xFFFF; // forceer eerste update
 
+	init_4bits_mode();
+		
+	_delay_ms(10);
+		
+	lcd_clear();
+		
+	_delay_ms(10); // gives clear time to process 
+		
+	lcd_write_string("Druk teller:");
 
-		init_4bits_mode();
-		
-		
-		_delay_ms(10);
-		
-		lcd_clear();
-		
-		_delay_ms(10); // gives clear time to process 
-		
-		lcd_write_string("spatie weg");
-		
+	init_tc2_counter();
 
 	for(;;) {	
+		unsigned int current = get_total_count();
 
+			if(current != last_shown){
+			lcd_write_command(0x02); // cursor terug naar begin regel (home)
+			lcd_write_string("Druk teller:");
+			lcd_write_number(current);
+			last_shown = current;
+			}
+		
 	}
 	return 1;
 }

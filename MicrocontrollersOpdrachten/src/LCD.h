@@ -14,6 +14,7 @@ void init_4bits_mode(void);
 void lcd_write_string(const char *str);
 void lcd_write_character(unsigned char byte);
 void lcd_write_command(unsigned char byte);
+void lcd_write_number(unsigned int number);
 void lcd_clear();
 
 
