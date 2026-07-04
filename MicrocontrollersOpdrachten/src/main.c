@@ -1,61 +1,73 @@
 #define F_CPU 8000000UL
 #include <avr/io.h>
 #include <util/delay.h>
+#include <stdlib.h>   // voor itoa()
+#include "LCD.h"
 
-// ---------------------------------------------------------------------
-// ADC init: kanaal 3, 8-bit resultaat (ADLAR=1), Vref=AVCC,
-// prescaler 64 (125kHz). GEEN free-running: elke conversie moet
-// handmatig gestart worden door ADSC te zetten.
-// ---------------------------------------------------------------------
-void adc_init_single_conversion_ch3(void){
+// Pas dit aan naar het kanaal waarop de LM35 daadwerkelijk is aangesloten
+#define LM35_ADC_KANAAL 0
+
+void adc_init_lm35(void){
 	// Prescaler = 64 -> ADC-klok = 8MHz/64 = 125kHz (binnen 50-200kHz bereik)
 	ADCSRA |= (1 << ADPS2) | (1 << ADPS1);
 
-	// Referentiespanning = AVCC
-	ADMUX |= (1 << REFS0);
+	// Interne 2,56V referentie: REFS1 = 1, REFS0 = 1
+	ADMUX |= (1 << REFS1) | (1 << REFS0);
 
 	// 8-bit resultaat: links uitgelijnd, alleen ADCH nodig
 	ADMUX |= (1 << ADLAR);
 
-	// Kanaal 3 selecteren: MUX4:0 = 00011
-	ADMUX &= ~((1<<MUX4)|(1<<MUX3)|(1<<MUX2));
-	ADMUX |=  (1<<MUX1) | (1<<MUX0);
+	// Kanaal selecteren (LM35_ADC_KANAAL, bijv. kanaal 0)
+	ADMUX = (ADMUX & 0xE0) | (LM35_ADC_KANAAL & 0x1F);
 
-	// LET OP: ADFR wordt NIET gezet -> single conversion mode (op aanvraag)
-
-	// ADC inschakelen (nog geen conversie starten)
+	// ADC inschakelen (single conversion: ADFR blijft uit)
 	ADCSRA |= (1 << ADEN);
 }
 
-// Start één conversie, wacht tot hij klaar is, en geeft de 8-bit uitkomst terug.
-unsigned char adc_read_ch3_8bit(void){
-	// Start de conversie
-	ADCSRA |= (1 << ADSC);
+// Start één conversie, wacht tot hij klaar is, geeft de 8-bit ADC-waarde
+// terug. Dankzij de rekenkern hierboven is dit direct de temperatuur in °C.
+unsigned char lm35_lees_temperatuur(void){
+	ADCSRA |= (1 << ADSC);              // start conversie
 
-	// Wacht tot de conversie klaar is: ADSC wordt door hardware
-	// automatisch weer op 0 gezet zodra de conversie voltooid is
-	while(ADCSRA & (1 << ADSC)){
-		// niets doen, gewoon wachten
+	while(ADCSRA & (1 << ADSC)){        // wacht tot conversie klaar is
+		// niets doen
 	}
 
-	// 8-bit resultaat staat door ADLAR=1 direct in ADCH
-	return ADCH;
+	return ADCH;                        // 8-bit resultaat = temperatuur in °C
+}
+
+// Toont de temperatuur als getal + eenheid op het LCD.
+void lcd_toon_temperatuur(unsigned char temp_c){
+	char buffer[8];
+
+	lcd_write_command(0x02); // cursor terug naar begin (home)
+	lcd_write_string("Temp: ");
+
+	itoa(temp_c, buffer, 10);
+	lcd_write_string(buffer);
+	lcd_write_string(" C   "); // spaties overschrijven oude, langere waarden
 }
 
 int main(void){
-	DDRA = 0xFF;   // PORTA volledig output (bijv. om resultaat te tonen op LED's)
+	DDRA = 0xFF;   // PORTA volledig output -> LED's tonen ADCH
 	PORTA = 0x00;
 
-	adc_init_single_conversion_ch3();
+	init_4bits_mode();
+	_delay_ms(10);
+	lcd_clear();
+	_delay_ms(10);
+
+	adc_init_lm35();
 
 	for(;;){
-		// Eén conversie op aanvraag uitvoeren en resultaat ophalen
-		unsigned char waarde = adc_read_ch3_8bit();
+		unsigned char temperatuur = lm35_lees_temperatuur();
 
-		// Gebruik de waarde, bijv. tonen op LED's van PORTA
-		PORTA = waarde;
+		// Waarde van ADCH tonen op de LED's van PORTA
+		PORTA = temperatuur;
 
-		// Wachtfunctie: bepaalt hoe vaak je "op aanvraag" een nieuwe meting doet
-		_delay_ms(500);
+		// Temperatuur tonen op het LCD
+		lcd_toon_temperatuur(temperatuur);
+
+		_delay_ms(500); // wachtfunctie: bepaalt de meetfrequentie
 	}
 }
