@@ -5,5 +5,4 @@
 #include "OpdrachtenWeek5/Headers/WeekVijfB.h"
 
 int main(void){
-	Three_Segment_Display();
 }
