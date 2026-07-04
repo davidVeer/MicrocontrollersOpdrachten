@@ -2,7 +2,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdlib.h>   // voor itoa()
-#include "SupportModules\LCD\Headers\LCD.h"
+#include "OpdrachtenWeek1/Headers/WeekEenB.h"
 
 // Pas dit aan naar het kanaal waarop de LM35 daadwerkelijk is aangesloten
 #define LM35_ADC_KANAAL 0
@@ -49,6 +49,5 @@ void lcd_toon_temperatuur(unsigned char temp_c){
 }
 
 int main(void){
-
-		
+	Two_AlternateLedBlinks();
 }
