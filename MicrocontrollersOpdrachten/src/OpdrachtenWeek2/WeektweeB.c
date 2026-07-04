@@ -4,6 +4,11 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 
+void wait( int ms ) {
+	for (int i=0; i<ms; i++) {
+		_delay_ms( 1 );		// library function (max 30 ms at 8MHz)
+	}
+}
 
 const unsigned char Characters[16] = {
 	0b00111111, // 0
@@ -112,7 +117,7 @@ void Four_Segment_Display_Animation(){
 		for (int i = 0; i < sizeof(pattern)/sizeof(pattern[0]); i++)
 		{
 			PORTA = pattern[index].data;
-			_delay_ms(pattern[index].delay);
+			wait(pattern[index].delay);
 			index++;
 		}
 	}
