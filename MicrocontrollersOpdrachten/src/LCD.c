@@ -2,46 +2,35 @@
 #include <util/delay.h>
 #include "LCD.h"
 
-
 void _delay_ms(double __ms);
 
-void lcd_clear() {
+// Clear the LCD and return the cursor to the home position
+void lcd_clear(void) {
 	lcd_write_command (0x01);						//Leeg display
 	_delay_ms(2);
 	lcd_write_command (0x02);						//Cursor terug naar start
 }
 
-void lcd_strobe_lcd_e(void) {
-	
-	sbi_porta(LCD_E);	// E high
-	_delay_ms(1);
-	cbi_porta(LCD_E);  	// E low
-	_delay_ms(1);
-	
-}
-
-void sbi_portc(int index){
-	PORTC |= (1<<index);
-}
-
-
-void cbi_portc(int index){
-	PORTC &= ~(1<<index);
-}
-
+// Set a specific bit in PORTA
 void sbi_porta(int index){
 	PORTA |= (1<<index);
 }
 
-
+// Clear a specific bit in PORTA
 void cbi_porta(int index){
 	PORTA &= ~(1<<index);
 }
 
-void init_4bits_mode(void) {
-	
-	// PORTC output mode and all low (also E and RS pin)
-	
+// Strobe the LCD enable pin to latch data
+void lcd_strobe_lcd_e(void) { 
+	sbi_porta(LCD_E);	// E high
+	_delay_ms(1);
+	cbi_porta(LCD_E);  	// E low
+	_delay_ms(1);
+}
+
+// Initialize the LCD in 4-bit mode
+void init_4bits_mode(void) {	
 	// Init I/O
 	DDRC = 0xFF;			// PORTD(7) output, PORTD(6:0) input
 	PORTC = 0xFF;
@@ -109,9 +98,15 @@ void lcd_write_character(unsigned char byte){
 }
 
 void lcd_write_number(unsigned int number){
-	char buffer[8]; // max "65535" + spaties + \0 past ruim
- 
-	itoa(number, buffer, 10);
+	char buffer[10];
+	itoa(number, buffer, 10); // Convert number to string in base 10
 	lcd_write_string(buffer);
-	lcd_write_string("    "); // overschrijft leftover cijfers van een vorig, langer getal
+}
+
+// Initialize and clear the LCD
+void lcd_setup(void) {
+	init_4bits_mode();
+	_delay_ms(5);
+	lcd_clear();
+	_delay_ms(5);
 }
