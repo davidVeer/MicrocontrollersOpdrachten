@@ -2,6 +2,10 @@
 #include <util/delay.h>
 #include <stdlib.h>   // voor itoa()
 
+#define WEEK_THREE_ONE 
+#include "OpdrachtenWeek3/Headers/Interuptions.h"
+#include "OpdrachtenWeek3/Headers/WeekDrieB.h"
+
 // Pas dit aan naar het kanaal waarop de LM35 daadwerkelijk is aangesloten
 #define LM35_ADC_KANAAL 0
 
@@ -47,4 +51,5 @@ void lcd_toon_temperatuur(unsigned char temp_c){
 }
 
 int main(void){
+	Two_Timer();
 }
