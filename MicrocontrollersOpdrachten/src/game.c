@@ -4,10 +4,19 @@
 #include "game.h"
 #include "LCD.h"
 #include "led.h"
+#include <stdbool.h>
 
-int score = 0; // Global variable to keep track of the score
-void _delay_ms(double __ms);
+int score = 0; 
 bool GameIsRunning = true;
+volatile uint8_t current_position =-1; // Current position of the active LED; -1 indicates no active LED
+
+void spawn_new_led(void) {
+    // Generate time between LED's
+    _delay_ms(rand() % 10 * 500);
+
+    // Turn on the new LED
+    TurnLedOn(leds[current_position].port, leds[current_position].pin);
+}
 
 // Initialize the game by setting up the LCD and LEDs
 void game_init(void) {
@@ -59,4 +68,8 @@ void game_display_score(void) {
     lcd_clear();
     lcd_write_string("Score: ");
     lcd_write_number(score);
+}
+
+void button_pressed(int row) {
+
 }
