@@ -23,8 +23,6 @@ void init_tc2_counter(void){
 	sei();
 }
 
-
-
 void timer2Init(void){
 	TCNT2 = 0;                 // teller start op 0
 	OCR2  = OCR2_HIGH_15MS;    // eerste periode: 15 ms
@@ -36,9 +34,6 @@ void timer2Init(void){
 
 	sei();
 }
-
-
-
 
 
 unsigned int get_total_count(void){

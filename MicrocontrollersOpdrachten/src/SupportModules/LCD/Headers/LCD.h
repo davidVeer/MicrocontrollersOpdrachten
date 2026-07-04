@@ -4,7 +4,6 @@
 #define LCD_E 	6
 #define LCD_RS	4
 
-void _delay_ms(double __ms);
 void lcd_strobe_lcd_e(void);
 void sbi_portc(int index);
 void cbi_portc(int index);
