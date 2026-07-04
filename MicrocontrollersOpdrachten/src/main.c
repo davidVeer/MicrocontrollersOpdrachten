@@ -1,48 +1,37 @@
 #define F_CPU 8000000UL
 #include <avr/io.h>
-#include <util/delay.h>
-#include <avr/interrupt.h>
 
-#define BIT(x)  (1 << (x))
+void adc_init_free_running(void){
+    // B: Prescaler = 64 -> ADC-klok = 125 kHz (binnen 50-200 kHz bereik)
+    ADCSRA |= (1 << ADPS2) | (1 << ADPS1);
 
-// Prescaler 1024 -> tellingen per ms = F_CPU / 1024 / 1000 = 7.8125
-// 15 ms -> OCR2 = 15 * 7.8125 ≈ 117
-// 25 ms -> OCR2 = 25 * 7.8125 ≈ 195
-// Beide waarden passen ruim binnen het 8-bit bereik van OCR2 (max 255).
-#define OCR2_HIGH_15MS   117
-#define OCR2_LOW_25MS    195
+    // C: Referentiespanning = AVCC
+    ADMUX |= (1 << REFS0);
 
-void timer2Init(void){
-	TCNT2 = 0;                 // teller start op 0
-	OCR2  = OCR2_HIGH_15MS;    // eerste periode: 15 ms
+    // D: Resultaat links uitgelijnd (8-bit lezen via ADCH)
+    ADMUX |= (1 << ADLAR);
 
-	TCCR2 = (1<<WGM21) |                       // CTC-mode (reset TCNT2 bij compare match)
-	        (1<<CS22) | (1<<CS21) | (1<<CS20); // prescaler 1024
+    // E: Kanaal ADC0 selecteren
+    ADMUX &= ~((1<<MUX4)|(1<<MUX3)|(1<<MUX2)|(1<<MUX1)|(1<<MUX0));
 
-	TIMSK |= (1<<OCIE2);       // Timer2 Compare Match interrupt enable
+    // F: Free-running mode aan
+    ADCSRA |= (1 << ADFR);
 
-	sei();
-}
+    // G: ADC inschakelen
+    ADCSRA |= (1 << ADEN);
 
-// Toggelt PORTD.7 bij elke compare match en wisselt de compare-waarde
-// zodat de hoog- en laag-tijd afwisselend 15ms en 25ms zijn.
-ISR(TIMER2_COMP_vect){
-	PORTD ^= BIT(7);
-
-	if(OCR2 == OCR2_HIGH_15MS){
-		OCR2 = OCR2_LOW_25MS;
-	} else {
-		OCR2 = OCR2_HIGH_15MS;
-	}
+    // H: Start de conversiecyclus (start automatisch continu door na elke conversie)
+    ADCSRA |= (1 << ADSC);
 }
 
 int main(void){
-	DDRD |= BIT(7);   // PORTD.7 als output
-	PORTD &= ~BIT(7); // start laag
+    adc_init_free_running();
 
-	timer2Init();
+    for(;;){
+        // ADCH bevat continu de meest recente 8-bit ADC-waarde,
+        // bijgewerkt door de hardware zonder verdere tussenkomst.
+        unsigned char waarde = ADCH;
 
-	for(;;){
-		// alles gebeurt in de ISR, main blijft leeg
-	}
+        // gebruik 'waarde' hier, bijv. weergeven op LCD of LED's
+    }
 }
