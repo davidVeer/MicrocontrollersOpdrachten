@@ -49,5 +49,4 @@ void lcd_toon_temperatuur(unsigned char temp_c){
 }
 
 int main(void){
-	Two_AlternateLedBlinks();
 }
