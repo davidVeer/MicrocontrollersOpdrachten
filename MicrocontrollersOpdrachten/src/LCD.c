@@ -74,21 +74,6 @@ void init_4bits_mode(void) {
 	lcd_strobe_lcd_e();
 }
 
-void lcd_write_character(unsigned char byte){
-	
-	
-	//upper nibble
-	PORTC = byte;
-	sbi_porta(LCD_RS);
-	lcd_strobe_lcd_e();
-	
-	//lower nibble
-	PORTC = (byte<<4);
-	sbi_porta(LCD_RS);
-	lcd_strobe_lcd_e();
-	
-}
-
 void lcd_write_command(unsigned char byte){
 	
 	//upper nibble
@@ -110,7 +95,23 @@ void lcd_write_string(const char *str) {
 	}
 }
 
-void lcd_move_right(void){
+void lcd_write_character(unsigned char byte){
 	
-	lcd_write_command(0x1E);
+	//upper nibble
+	PORTC = byte;
+	sbi_porta(LCD_RS);
+	lcd_strobe_lcd_e();
+	
+	//lower nibble
+	PORTC = (byte<<4);
+	sbi_porta(LCD_RS);
+	lcd_strobe_lcd_e();
+}
+
+void lcd_write_number(unsigned int number){
+	char buffer[8]; // max "65535" + spaties + \0 past ruim
+ 
+	itoa(number, buffer, 10);
+	lcd_write_string(buffer);
+	lcd_write_string("    "); // overschrijft leftover cijfers van een vorig, langer getal
 }
