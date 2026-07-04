@@ -1,4 +1,3 @@
-#define F_CPU 8000000UL
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdlib.h> 
@@ -11,17 +10,16 @@ int main(void){
 	init_leds();
 	game_init();
 	button_init();
-	//_delay_ms(3000);
-	//game_run();
-	// game_over();
+	_delay_ms(1000); // Time between start message and game
 
 	while(1){
-
+	game_run();
+	_delay_ms(100);
 	}
 
 	return 1;
 }
 
 ISR(INT0_vect) {
-	
+	button_pressed();
 }

@@ -4,6 +4,8 @@ LED leds[] = {
     {&PORTA, 0},
     {&PORTA, 1},
     {&PORTA, 2},
+    {&PORTA, 3},
+    {&PORTA, 5},
 };
 
 const int LED_COUNT = sizeof(leds) / sizeof(leds[0]);
