@@ -68,8 +68,8 @@ void Three_Segment_Display(){
 	setPort(&DDRA,0xff);
 
 
-	EICRA |= 0x07;	
-	EIMSK |= 0x03;	
+	EICRA |= 0b00001010;	
+	EIMSK |= 0b00000011;	
 	
 	sei();				
 
