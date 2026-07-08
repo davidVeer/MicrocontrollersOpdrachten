@@ -93,9 +93,15 @@ void lcd_write_character(unsigned char byte){
 }
 
 void lcd_write_number(unsigned int number){
-	char buffer[8]; // max "65535" + spaties + \0 past ruim
- 
-	itoa(number, buffer, 10);
+	char buffer[10];
+	itoa(number, buffer, 10); // Convert number to string in base 10
 	lcd_write_string(buffer);
-	lcd_write_string("    "); // overschrijft leftover cijfers van een vorig, langer getal
+}
+
+// Initialize and clear the LCD
+void lcd_setup(void) {
+	init_4bits_mode();
+	_delay_ms(5);
+	lcd_clear();
+	_delay_ms(5);
 }
