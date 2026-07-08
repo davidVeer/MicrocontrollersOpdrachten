@@ -1,5 +1,5 @@
-#include "SupportModules/PinHandling/Headers/PinHandling.h"
-#include "Headers/WeekEenB.h"
+#include "SupportModules/PinHandling/PinHandling.h"
+#include "OpdrachtenWeek1/WeekEenB.h"
 
 #include <util/delay.h>
 #include <stdbool.h>

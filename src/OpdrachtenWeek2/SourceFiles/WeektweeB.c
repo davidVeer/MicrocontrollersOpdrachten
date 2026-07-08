@@ -1,15 +1,15 @@
-#include "Headers/WeekTweeB.h"
+#include "OpdrachtenWeek2/WeekTweeB.h"
 
 
-#include "SupportModules/Segment/Headers/SingleSegment.h"
-#include "SupportModules/Interupts/Headers/Interupts.h"
-#include "SupportModules/PinHandling/Headers/PinHandling.h"
-#include "SupportModules/LCD/Headers/LCD.h"
+#include "SupportModules/Segment/SingleSegment.h"
+#include "SupportModules/Interupts/Interupts.h"
+#include "SupportModules/PinHandling/PinHandling.h"
+#include "SupportModules/LCD/LCD.h"
 
 // #define WEEK_TWO_ONE
 // #define WEEK_TWO_TWO
 // #define WEEK_TWO_THREE
-#include "Headers/Interuptions.h"
+#include "OpdrachtenWeek2/Interuptions.h"
 
 #include <avr/io.h>
 #include <util/delay.h>

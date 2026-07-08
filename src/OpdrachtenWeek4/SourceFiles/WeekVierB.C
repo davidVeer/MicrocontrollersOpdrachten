@@ -1,7 +1,7 @@
 #include <avr/io.h>
 #include <stdlib.h>   // voor itoa()
 #include <util/delay.h>
-#include "Headers/WeekVierB.h"
+#include "OpdrachtenWeek4/WeekVierB.h"
 
 
 void adc_init_single_conversion_ch3(void){

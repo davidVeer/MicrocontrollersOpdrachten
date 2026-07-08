@@ -1,5 +1,5 @@
-#include "Headers/Interupts.h"
-#include "SupportModules/PinHandling/Headers/PinHandling.h"
+#include "SupportModules/Interupts/Interupts.h"
+#include "SupportModules/PinHandling/PinHandling.h"
 #include <avr/interrupt.h>
 
 void initInterupts(int EICRA_Settings_mask, int EIMSK_Settings_mask){

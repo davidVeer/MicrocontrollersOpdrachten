@@ -1,5 +1,5 @@
-#include "Headers/SingleSegment.h"
-#include "SupportModules/PinHandling/Headers/PinHandling.h"
+#include "SupportModules/Segment/SingleSegment.h"
+#include "SupportModules/PinHandling/PinHandling.h"
 
 const unsigned char Character_Register[16] = {
 0b00111111, //0

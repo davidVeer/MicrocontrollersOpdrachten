@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <util/delay.h>
 #include "game.h"
-#include "SupportModules/LCD/Headers/LCD.h"
+#include "SupportModules/LCD/LCD.h"
 #include "led.h"
 #include "button.h"
 #include <stdbool.h>
