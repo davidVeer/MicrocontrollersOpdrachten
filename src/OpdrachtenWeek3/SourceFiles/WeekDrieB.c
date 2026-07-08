@@ -2,8 +2,8 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 
-#include "Headers/WeekDrieB.h"
-#include "SupportModules/LCD/Headers/LCD.h"
+#include "OpdrachtenWeek3/WeekDrieB.h"
+#include "SupportModules/LCD/LCD.h"
 
 
 volatile unsigned int count = 0;

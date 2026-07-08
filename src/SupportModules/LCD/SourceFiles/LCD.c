@@ -1,8 +1,8 @@
 #include <avr/io.h>
 #include <util/delay.h>
-#include "Headers/LCD.h"
+#include "SupportModules/LCD/LCD.h"
 #include <stdlib.h>
-#include "SupportModules/PinHandling/Headers/PinHandling.h"
+#include "SupportModules/PinHandling/PinHandling.h"
 
 void lcd_clear() {
 	lcd_write_command (0x01);						//Leeg display
