@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <util/delay.h>
 #include "game.h"
-#include "LCD.h"
+#include "SupportModules/LCD/Headers/LCD.h"
 #include "led.h"
 #include "button.h"
 #include <stdbool.h>
@@ -11,15 +11,10 @@ int score = 0;
 volatile uint8_t current_position; // Current position of the active LED;
 bool restart = false;
 
-void wait( int ms ) {
-	for (int i=0; i<ms; i++) {
-		_delay_ms( 1 );
-	}
-}
 
 void spawn_new_led(void) {
     // Generate time between LED's
-    wait(rand() % 10 * 100);
+    _wait_ms(rand() % 10 * 100);
 
     // Turn on the new LED
     current_position = LED_COUNT;
